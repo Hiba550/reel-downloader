@@ -1,73 +1,198 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Download Instagram Reel - {{ title }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #5851DB;
+            /* Light theme (default) */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #FAFAFA;
+            --text-primary: #262626;
+            --text-secondary: #8e8e8e;
+            --border-color: #DBDBDB;
+            --card-bg: #FFFFFF;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            
+            /* Common colors */
+            --primary-color: #0095F6;
             --primary-gradient-start: #8a3ab9;
-            --primary-gradient-end: #e95950;
-            --text-color: #1F2937;
-            --light-bg: #F9FAFB;
-            --card-bg: white;
-            --border-radius: 12px;
-            --border-color: #E5E7EB;
-            --success-color: #10B981;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --primary-gradient-middle: #bc2a8d;
+            --primary-gradient-end: #fccc63;
+            --error-color: #ED4956;
+            --success-color: #00bf63;
+            
+            /* UI elements */
+            --border-radius: 8px;
+            --shadow: 0 4px 12px var(--shadow-color);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1A1A1A;
+            --text-primary: #F5F5F5;
+            --text-secondary: #A8A8A8;
+            --border-color: #363636;
+            --card-bg: #262626;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            font-family: 'Inter', sans-serif;
-            max-width: 650px;
-            margin: 0 auto;
-            padding: 2.5rem 1.25rem;
-            background-color: var(--light-bg);
-            color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease;
+        }
+        
+        .app-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 100;
+            opacity: 0.75;
+            transition: opacity 0.3s;
+        }
+        
+        .theme-toggle:hover {
+            opacity: 1;
+        }
+        
+        .theme-toggle-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 5px var(--shadow-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-toggle-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .theme-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-primary);
         }
         
         .container {
             background-color: var(--card-bg);
             border-radius: var(--border-radius);
             padding: 2rem;
+            width: 100%;
+            max-width: 450px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
             text-align: center;
-            transition: transform 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
         }
         
         .container:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                var(--primary-gradient-start), 
+                var(--primary-gradient-middle), 
+                var(--primary-gradient-end));
         }
         
         .success-header {
             margin-bottom: 2rem;
             padding-bottom: 1.5rem;
             border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .success-icon-wrapper {
+            position: relative;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
         }
         
         .success-icon {
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 4rem;
-            height: 4rem;
-            margin: 0 auto 1rem;
             border-radius: 50%;
-            background: linear-gradient(135deg, #34D399, #10B981);
+            background: var(--success-color);
             color: white;
-            font-size: 2rem;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0, 191, 99, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .success-icon-wrapper::before,
+        .success-icon-wrapper::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background-color: var(--success-color);
+            opacity: 0.2;
+        }
+        
+        .success-icon-wrapper::before {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .success-icon-wrapper::after {
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
+            animation: pulse 1.5s infinite 0.4s;
         }
         
         h1 {
             font-weight: 700;
-            font-size: 1.875rem;
-            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, 
+                var(--primary-gradient-start), 
+                var(--primary-gradient-middle), 
+                var(--primary-gradient-end));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -76,33 +201,68 @@
         
         .video-info {
             padding: 1.25rem;
-            background-color: var(--light-bg);
+            background-color: var(--bg-secondary);
             border-radius: var(--border-radius);
             margin: 1.5rem 0;
             text-align: left;
             border: 1px solid var(--border-color);
             transition: all 0.2s ease;
+            position: relative;
         }
         
         .video-info:hover {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+        
+        .video-info::before {
+            content: "📹";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--card-bg);
+            padding: 0 8px;
+            font-size: 1rem;
         }
         
         .video-title {
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             font-weight: 600;
             word-wrap: break-word;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            line-height: 1.4;
         }
         
         .video-meta {
-            color: #6B7280;
-            font-size: 0.875rem;
-            margin: 0.75rem 0;
+            display: flex;
+            align-items: center;
+            margin: 0.75rem 0 0;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                var(--primary-gradient-start), 
+                var(--primary-gradient-middle), 
+                var(--primary-gradient-end));
+            margin-right: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
         }
         
         .username {
-            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            background: linear-gradient(135deg, 
+                var(--primary-gradient-start), 
+                var(--primary-gradient-middle));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -110,46 +270,76 @@
         }
         
         .download-btn {
-            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            background: var(--primary-color);
             color: white;
             text-decoration: none;
             padding: 0.875rem 1.5rem;
-            border-radius: 0.5rem;
+            border-radius: var(--border-radius);
             font-weight: 600;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
             transition: all 0.3s ease;
-            font-size: 1.125rem;
+            font-size: 1rem;
             margin: 1.5rem 0;
-            box-shadow: 0 4px 6px rgba(88, 81, 219, 0.25);
-            letter-spacing: 0.025em;
+            position: relative;
+            overflow: hidden;
+            width: auto;
+            min-width: 200px;
         }
         
         .download-btn:hover {
+            opacity: 0.95;
             transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(88, 81, 219, 0.35);
+        }
+        
+        .download-btn:active {
+            transform: translateY(0);
+        }
+        
+        .download-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .download-btn:hover::before {
+            left: 100%;
+        }
+        
+        .download-icon {
+            font-size: 1.25rem;
         }
         
         .back-link {
             display: inline-flex;
             align-items: center;
-            margin-top: 1.25rem;
+            justify-content: center;
+            margin-top: 1rem;
             color: var(--primary-color);
             text-decoration: none;
             font-weight: 500;
             transition: all 0.2s ease;
-            gap: 0.375rem;
+            gap: 0.5rem;
+            font-size: 0.95rem;
         }
         
         .back-link:hover {
-            color: var(--primary-gradient-end);
+            color: var(--primary-gradient-middle);
             transform: translateX(-3px);
         }
         
-        .footer {
-            margin-top: 2.5rem;
-            text-align: center;
-            font-size: 0.875rem;
-            color: #6B7280;
+        .back-icon {
+            stroke: currentColor;
         }
         
         .disclaimer {
@@ -157,14 +347,62 @@
             padding: 1rem;
             border-top: 1px solid var(--border-color);
             font-size: 0.875rem;
-            color: #6B7280;
+            color: var(--text-secondary);
+        }
+        
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            max-width: 450px;
         }
         
         .heart {
-            color: #EF4444;
+            color: var(--error-color);
             display: inline-block;
             transform-origin: center;
             animation: heartbeat 1.5s ease infinite;
+        }
+        
+        .decorator {
+            position: absolute;
+            background: linear-gradient(135deg, 
+                var(--primary-gradient-start), 
+                var(--primary-gradient-middle), 
+                var(--primary-gradient-end));
+            border-radius: 50%;
+            opacity: 0.05;
+            z-index: -1;
+        }
+        
+        .decorator-1 {
+            width: 200px;
+            height: 200px;
+            top: -100px;
+            left: -100px;
+        }
+        
+        .decorator-2 {
+            width: 150px;
+            height: 150px;
+            bottom: -75px;
+            right: -75px;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.2;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
         }
         
         @keyframes heartbeat {
@@ -175,11 +413,12 @@
             70% { transform: scale(1); }
         }
         
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
         @media (max-width: 640px) {
-            body {
-                padding: 1.5rem 1rem;
-            }
-            
             .container {
                 padding: 1.5rem;
             }
@@ -188,55 +427,171 @@
                 font-size: 1.5rem;
             }
             
+            .success-icon-wrapper {
+                width: 56px;
+                height: 56px;
+            }
+            
             .success-icon {
-                width: 3.5rem;
-                height: 3.5rem;
-                font-size: 1.75rem;
+                font-size: 1.25rem;
+            }
+            
+            .theme-toggle {
+                top: 0.75rem;
+                right: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 375px) {
+            .container {
+                padding: 1.25rem;
+            }
+            
+            .success-icon-wrapper {
+                width: 50px;
+                height: 50px;
+            }
+            
+            h1 {
+                font-size: 1.25rem;
+            }
+            
+            .video-title {
+                font-size: 1rem;
+            }
+            
+            .download-btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.95rem;
+                min-width: 180px;
+            }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .container, .download-btn, .heart, .video-info, body, .theme-toggle-button {
+                transition: none;
+            }
+            
+            .success-icon-wrapper::before,
+            .success-icon-wrapper::after {
+                animation: none;
+            }
+            
+            .heart {
+                animation: none;
+            }
+            
+            .download-btn::before {
+                display: none;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="success-header">
-            <div class="success-icon">✓</div>
-            <h1>Download Ready!</h1>
-            <p>Your Instagram Reel has been successfully processed</p>
-        </div>
-        
-        <div class="video-info">
-            <div class="video-title">{{ title }}</div>
-            <div class="video-meta">
-                By <span class="username">@{{ username }}</span>
+    <div class="theme-toggle">
+        <button class="theme-toggle-button" id="themeToggle" aria-label="Toggle theme">
+            <!-- Moon icon for dark mode -->
+            <svg class="theme-icon" id="darkIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
+            </svg>
+            <!-- Sun icon for light mode -->
+            <svg class="theme-icon" id="lightIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5"/>
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+        </button>
+    </div>
+    
+    <div class="app-wrapper">
+        <div class="container">
+            <div class="decorator decorator-1"></div>
+            <div class="decorator decorator-2"></div>
+            
+            <div class="success-header">
+                <div class="success-icon-wrapper">
+                    <div class="success-icon">✓</div>
+                </div>
+                <h1>Download Ready!</h1>
+                <p>Your Instagram Reel has been successfully processed</p>
+            </div>
+            
+            <div class="video-info">
+                <div class="video-title">{{ title }}</div>
+                <div class="video-meta">
+                    <div class="user-avatar">{{ username|upper|first }}</div>
+                    <span>By <span class="username">@{{ username }}</span></span>
+                </div>
+            </div>
+            
+            <a href="/download/{{ download_id }}" class="download-btn">
+                <span class="download-icon">↓</span>
+                <span>Download Reel</span>
+            </a>
+            
+            <p>
+                <a href="/" class="back-link">
+                    <svg class="back-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Download Another Reel
+                </a>
+            </p>
+            
+            <div class="disclaimer">
+                <p>This downloader is for personal use only. Please respect copyright and Instagram's terms of service.</p>
             </div>
         </div>
         
-        <a href="/download/{{ download_id }}" class="download-btn">Download Video</a>
-        
-        <p>
-            <a href="/" class="back-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-                Download Another Reel
-            </a>
-        </p>
-        
-        <div class="disclaimer">
-            <p>This downloader is for personal use only. Please respect copyright and Instagram's terms of service.</p>
+        <div class="footer">
+            <p>For personal use only - Made with <span class="heart">❤️</span> by Hiba550</p>
         </div>
     </div>
     
-    <div class="footer">
-        <p>For personal use only - Made with <span class="heart">❤️</span> by Hiba550</p>
-    </div>
-    
     <script>
-        // Auto-trigger download after 1 second
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const lightIcon = document.getElementById('lightIcon');
+        const darkIcon = document.getElementById('darkIcon');
+        const htmlElement = document.documentElement;
+        
+        // Check for saved theme preference or use device preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            htmlElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        } else {
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const themeToSet = prefersDarkMode ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', themeToSet);
+            updateThemeIcon(themeToSet);
+        }
+        
+        // Update theme icon based on current theme
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                lightIcon.style.display = 'none';
+                darkIcon.style.display = 'block';
+            } else {
+                lightIcon.style.display = 'block';
+                darkIcon.style.display = 'none';
+            }
+        }
+        
+        // Toggle theme when button is clicked
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+        
+        // Auto-trigger download after 1.5 seconds
         setTimeout(function() {
             window.location.href = "/download/{{ download_id }}";
-        }, 1000);
+        }, 1500);
     </script>
 </body>
 </html>
