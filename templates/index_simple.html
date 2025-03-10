@@ -1,173 +1,411 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Instagram Reel Downloader</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #5851DB;
+            /* Light theme (default) */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #FAFAFA;
+            --text-primary: #262626;
+            --text-secondary: #8e8e8e;
+            --border-color: #DBDBDB;
+            --card-bg: #FFFFFF;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            
+            /* Common colors */
+            --primary-color: #0095F6;
             --primary-gradient-start: #8a3ab9;
-            --primary-gradient-end: #e95950;
-            --text-color: #1F2937;
-            --light-bg: #F9FAFB;
-            --error-color: #EF4444;
-            --card-bg: white;
-            --border-radius: 12px;
-            --border-color: #E5E7EB;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --primary-gradient-middle: #bc2a8d;
+            --primary-gradient-end: #fccc63;
+            --error-color: #ED4956;
+            --success-color: #00bf63;
+            
+            /* UI elements */
+            --border-radius: 8px;
+            --shadow: 0 4px 12px var(--shadow-color);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1A1A1A;
+            --text-primary: #F5F5F5;
+            --text-secondary: #A8A8A8;
+            --border-color: #363636;
+            --card-bg: #262626;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            font-family: 'Inter', sans-serif;
-            max-width: 650px;
-            margin: 0 auto;
-            padding: 2.5rem 1.25rem;
-            background-color: var(--light-bg);
-            color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease;
         }
         
-        h1 {
-            font-weight: 700;
-            font-size: 1.875rem;
-            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-align: center;
-            margin-bottom: 0.5rem;
+        .app-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 100;
+            opacity: 0.75;
+            transition: opacity 0.3s;
+        }
+        
+        .theme-toggle:hover {
+            opacity: 1;
+        }
+        
+        .theme-toggle-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 5px var(--shadow-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-toggle-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .theme-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-primary);
         }
         
         .container {
             background-color: var(--card-bg);
             border-radius: var(--border-radius);
             padding: 2rem;
+            width: 100%;
+            max-width: 450px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
-            transition: transform 0.2s ease-in-out;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
         }
         
         .container:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                var(--primary-gradient-start), 
+                var(--primary-gradient-middle), 
+                var(--primary-gradient-end));
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .instagram-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(45deg, 
+                var(--primary-gradient-start), 
+                var(--primary-gradient-middle), 
+                var(--primary-gradient-end));
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(138, 58, 185, 0.3);
+        }
+        
+        .instagram-icon::before {
+            content: "";
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 3px solid white;
+            border-radius: 8px;
+        }
+        
+        .instagram-icon::after {
+            content: "";
+            position: absolute;
+            width: 9px;
+            height: 9px;
+            background: white;
+            border-radius: 50%;
+            top: 11px;
+            right: 11px;
+        }
+        
+        h1 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, 
+                var(--primary-gradient-start), 
+                var(--primary-gradient-middle), 
+                var(--primary-gradient-end));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tag-line {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 400;
         }
         
         .form-group {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
         }
         
         input[type="text"] {
             width: 100%;
             padding: 0.875rem 1rem;
             border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            box-sizing: border-box;
-            font-size: 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
             transition: all 0.2s ease;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
         }
         
         input[type="text"]:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(88, 81, 219, 0.25);
+            box-shadow: 0 0 0 2px rgba(0, 149, 246, 0.2);
+        }
+        
+        input[type="text"]::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.8;
         }
         
         button {
-            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 0.875rem 1.25rem;
-            border-radius: 0.5rem;
-            font-size: 1rem;
+            padding: 0.875rem 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
             cursor: pointer;
             display: block;
             width: 100%;
             transition: all 0.3s ease;
             font-weight: 600;
-            box-shadow: 0 4px 6px rgba(88, 81, 219, 0.25);
-            letter-spacing: 0.025em;
+            position: relative;
+            overflow: hidden;
         }
         
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(88, 81, 219, 0.35);
+            opacity: 0.9;
         }
         
         button:active {
-            transform: translateY(0);
+            transform: scale(0.98);
         }
         
         button:disabled {
-            background: #E5E7EB;
-            color: #9CA3AF;
+            background: var(--border-color);
+            color: var(--text-secondary);
             cursor: not-allowed;
-            box-shadow: none;
             transform: none;
+        }
+        
+        button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            transition: all 0.6s ease;
+        }
+        
+        button:hover::before {
+            left: 100%;
         }
         
         .error {
             color: var(--error-color);
             margin-top: 1.25rem;
             padding: 1rem;
-            background-color: #FEF2F2;
-            border-radius: 0.5rem;
+            background-color: rgba(237, 73, 86, 0.1);
+            border-radius: var(--border-radius);
             text-align: center;
-            border-left: 4px solid var(--error-color);
+            font-size: 0.95rem;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .error-icon {
+            font-weight: bold;
+            font-size: 1.1rem;
         }
         
         .loading {
             display: none;
             text-align: center;
             margin-top: 1.5rem;
+            animation: fadeIn 0.3s ease;
         }
         
         .spinner {
             display: inline-block;
-            width: 2.5rem;
-            height: 2.5rem;
-            border: 3px solid rgba(88, 81, 219, 0.2);
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid rgba(0, 149, 246, 0.2);
             border-radius: 50%;
             border-top-color: var(--primary-color);
-            animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            animation: spin 0.8s linear infinite;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .footer {
-            margin-top: 2.5rem;
-            text-align: center;
-            font-size: 0.875rem;
-            color: #6B7280;
+        .spinner-text {
+            margin-top: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
         }
         
         .example {
             margin-top: 1.5rem;
             padding: 1rem;
-            border-top: 1px solid var(--border-color);
+            border: 1px dashed var(--border-color);
             font-size: 0.875rem;
-            color: #6B7280;
-            background-color: #F3F4F6;
-            border-radius: 0.5rem;
+            color: var(--text-secondary);
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
         }
         
-        .tag-line {
+        .example strong {
+            color: var(--text-primary);
+        }
+        
+        .features {
+            margin-top: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
             text-align: center;
-            margin-bottom: 1.5rem;
-            font-size: 1.125rem;
-            color: #4B5563;
+        }
+        
+        .feature-item {
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
+            transition: all 0.2s ease;
+        }
+        
+        .feature-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .feature-icon {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+        
+        .feature-title {
+            color: var(--text-primary);
             font-weight: 500;
         }
         
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            max-width: 450px;
+        }
+        
         .heart {
-            color: #EF4444;
+            color: var(--error-color);
             display: inline-block;
             transform-origin: center;
             animation: heartbeat 1.5s ease infinite;
+        }
+        
+        .decorator {
+            position: absolute;
+            background: linear-gradient(135deg, 
+                var(--primary-gradient-start), 
+                var(--primary-gradient-middle), 
+                var(--primary-gradient-end));
+            border-radius: 50%;
+            opacity: 0.05;
+            z-index: -1;
+        }
+        
+        .decorator-1 {
+            width: 200px;
+            height: 200px;
+            top: -100px;
+            left: -100px;
+        }
+        
+        .decorator-2 {
+            width: 150px;
+            height: 150px;
+            bottom: -75px;
+            right: -75px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         @keyframes heartbeat {
@@ -178,11 +416,12 @@
             70% { transform: scale(1); }
         }
         
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
         @media (max-width: 640px) {
-            body {
-                padding: 1.5rem 1rem;
-            }
-            
             .container {
                 padding: 1.5rem;
             }
@@ -190,45 +429,164 @@
             h1 {
                 font-size: 1.5rem;
             }
+            
+            .theme-toggle {
+                top: 0.75rem;
+                right: 0.75rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 375px) {
+            .container {
+                padding: 1.25rem;
+            }
+            
+            .instagram-icon {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .instagram-icon::before {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .instagram-icon::after {
+                width: 8px;
+                height: 8px;
+                top: 9px;
+                right: 9px;
+            }
+            
+            h1 {
+                font-size: 1.25rem;
+            }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .container, button, .heart, .feature-item, .theme-toggle-button {
+                transition: none;
+            }
+            
+            @keyframes spin {
+                to { transform: none; }
+            }
+            
+            @keyframes heartbeat {
+                0% { transform: none; }
+            }
+            
+            button::before {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Instagram Reel Downloader</h1>
-        <p class="tag-line">Download Instagram Reels in highest quality</p>
-        
-        <form id="downloadForm" method="post">
-            <div class="form-group">
-                <input type="text" name="url" id="urlInput" placeholder="https://www.instagram.com/reel/..." required autocomplete="off">
-            </div>
-            <button type="submit" id="submitBtn">Download Reel</button>
-        </form>
-        
-        <div class="loading" id="loadingIndicator">
-            <div class="spinner"></div>
-            <p>Fetching your video... Please wait a moment</p>
-        </div>
-        
-        {% if error %}
-        <div class="error">
-            {{ error }}
-        </div>
-        {% endif %}
-        
-        <div class="example">
-            <p><strong>Example URL:</strong> https://www.instagram.com/reel/CqXKsVIu9H_/</p>
-        </div>
+    <div class="theme-toggle">
+        <button class="theme-toggle-button" id="themeToggle" aria-label="Toggle theme">
+            <!-- Moon icon for dark mode -->
+            <svg class="theme-icon" id="darkIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
+            </svg>
+            <!-- Sun icon for light mode -->
+            <svg class="theme-icon" id="lightIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5"/>
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+        </button>
     </div>
-    
-    <div class="footer">
-        <p>For personal use only - Made with <span class="heart">❤️</span> by Hiba550</p>
+
+    <div class="app-wrapper">
+        <div class="container">
+            <div class="decorator decorator-1"></div>
+            <div class="decorator decorator-2"></div>
+            
+            <div class="logo">
+                <div class="instagram-icon"></div>
+                <h1>Instagram Reel Downloader</h1>
+            </div>
+            
+            <p class="tag-line">Download Instagram Reels in highest quality</p>
+            
+            <form id="downloadForm" method="post">
+                <div class="form-group">
+                    <input type="text" name="url" id="urlInput" placeholder="Paste Instagram Reel link here..." required autocomplete="off" spellcheck="false">
+                </div>
+                <button type="submit" id="submitBtn">Download Reel</button>
+            </form>
+            
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p class="spinner-text">Fetching your video... Please wait</p>
+            </div>
+            
+            {% if error %}
+            <div class="error">
+                <span class="error-icon">!</span>
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <div class="example">
+                <p><strong>Example:</strong> https://www.instagram.com/reel/CqXKsVIu9H_/</p>
+            </div>
+            
+            
+        
+        <div class="footer">
+            <p>For personal use only - Made with <span class="heart">❤️</span> by Hiba550</p>
+        </div>
     </div>
     
     <script>
+        // Form submission handler
         document.getElementById('downloadForm').addEventListener('submit', function() {
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('loadingIndicator').style.display = 'block';
+        });
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const lightIcon = document.getElementById('lightIcon');
+        const darkIcon = document.getElementById('darkIcon');
+        const htmlElement = document.documentElement;
+        
+        // Check for saved theme preference or use device preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            htmlElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        } else {
+            const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const themeToSet = prefersDarkMode ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', themeToSet);
+            updateThemeIcon(themeToSet);
+        }
+        
+        // Update theme icon based on current theme
+        function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+                lightIcon.style.display = 'none';
+                darkIcon.style.display = 'block';
+            } else {
+                lightIcon.style.display = 'block';
+                darkIcon.style.display = 'none';
+            }
+        }
+        
+        // Toggle theme when button is clicked
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
         });
     </script>
 </body>
