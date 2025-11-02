@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+
+{% block title %}Download ready - {{ reel_info.title }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .result-layout {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
+        align-items: start;
+    }
+
+    .success-card {
+        display: grid;
+        gap: 1.75rem;
+    }
+
+    .success-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+        align-items: center;
+    }
+
+    .success-icon {
+        width: 68px;
+        height: 68px;
+        border-radius: 22px;
+        background: var(--gradient-primary);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 2rem;
+        box-shadow: 0 20px 40px rgba(138, 58, 185, 0.32);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .success-icon::after {
+        content: "";
+        position: absolute;
+        width: 120%;
+        height: 120%;
+        border-radius: inherit;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        opacity: 0.65;
+    }
+
+    .success-copy {
+        flex: 1 1 240px;
+        display: grid;
+        gap: 0.45rem;
+    }
+
+    .success-copy h1 {
+        font-size: clamp(1.8rem, 2.9vw, 2.45rem);
+        margin: 0;
+    }
+
+    .success-copy p {
+        color: var(--text-secondary);
+        line-height: 1.55;
+    }
+
+    .status-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        background: rgba(0, 191, 137, 0.16);
+        color: #047857;
+        border-radius: 999px;
+        padding: 0.45rem 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-chip::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .author-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        color: var(--text-secondary);
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        background: var(--gradient-primary);
+        color: #fff;
+        font-weight: 600;
+        display: grid;
+        place-items: center;
+        font-size: 1rem;
+    }
+
+    .title-text {
+        font-weight: 600;
+        font-size: 1.15rem;
+        color: var(--text-primary);
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .btn-secondary {
+        background: color-mix(in srgb, var(--surface-glass) 75%, transparent);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--border-strong);
+    }
+
+    .video-preview .badge {
+        top: 16px;
+        left: 16px;
+        background: rgba(15, 23, 42, 0.65);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    .meta-card {
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+        background: color-mix(in srgb, var(--surface-card) 92%, transparent);
+        padding: 1rem 1.2rem;
+        display: grid;
+        gap: 0.45rem;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+    }
+
+    .meta-card .label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        gap: 0.45rem;
+        align-items: center;
+    }
+
+    .meta-card .value {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+    }
+
+    .caption-card {
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+        background: color-mix(in srgb, var(--surface-glass-alt) 80%, transparent);
+        padding: 1.1rem 1.3rem;
+        display: grid;
+        gap: 0.55rem;
+    }
+
+    .caption-card h3 {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .caption-card p {
+        margin: 0;
+        white-space: pre-wrap;
+        color: var(--text-secondary);
+        line-height: 1.55;
+    }
+
+    .auto-download {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+        padding: 0.85rem 1.1rem;
+        background: color-mix(in srgb, var(--surface-card) 88%, transparent);
+    }
+
+    .toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        cursor: pointer;
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+    }
+
+    .toggle input {
+        appearance: none;
+        width: 44px;
+        height: 24px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.4);
+        position: relative;
+        transition: background 0.2s ease;
+    }
+
+    .toggle input::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 4px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        transition: transform 0.2s ease;
+    }
+
+    .toggle input:checked {
+        background: rgba(0, 191, 137, 0.65);
+    }
+
+    .toggle input:checked::after {
+        transform: translateX(18px);
+    }
+
+    .auto-status {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .tips-card {
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+        background: color-mix(in srgb, var(--surface-glass) 85%, transparent);
+        padding: 1.4rem 1.6rem;
+        display: grid;
+        gap: 1rem;
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.16);
+    }
+
+    .tips-card h2 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .tips-list {
+        display: grid;
+        gap: 0.85rem;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .tips-list li {
+        list-style: none;
+        display: flex;
+        gap: 0.65rem;
+    }
+
+    .tips-list li::before {
+        content: "\2713";
+        color: var(--accent-success);
+        font-weight: 600;
+    }
+
+    .link-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .link-row a {
+        color: var(--primary-solid);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .link-row a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+        .success-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="grid result-layout">
+    <article class="frosted-panel success-card">
+        <header class="success-header">
+            <span class="success-icon">&#10003;</span>
+            <div class="success-copy">
+                <span class="status-chip">Download ready</span>
+                <h1>All set! Your reel is prepared.</h1>
+                <p>Preview, inspect metadata, and grab the MP4 file. We'll keep the download link alive for a few hours.</p>
+            </div>
+        </header>
+
+        <section class="video-preview">
+            <span class="badge">Live preview</span>
+            <video src="{{ preview_url }}" controls playsinline preload="metadata"></video>
+        </section>
+
+        <div class="author-row">
+            <span class="avatar">{{ reel_info.username|upper|first }}</span>
+            <div>
+                <div class="title-text">{{ reel_info.title }}</div>
+                <div>@{{ reel_info.username }}</div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{{ download_url }}" class="btn btn-primary" id="downloadNow">
+                <span class="icon" aria-hidden="true">&#11015;</span>
+                Download MP4
+            </a>
+            <button class="btn btn-secondary" id="copyLink" data-link="{{ download_url }}">Copy download link</button>
+            <a href="/" class="btn btn-outline">Fetch another reel</a>
+        </div>
+
+        <div class="auto-download">
+            <label class="toggle" for="autoDownloadToggle">
+                <input type="checkbox" id="autoDownloadToggle" checked>
+                <span>Auto-download in background</span>
+            </label>
+            <span class="auto-status" id="autoStatus">Starting download...</span>
+        </div>
+
+        <div class="meta-grid">
+            <div class="meta-card">
+                <span class="label">Duration</span>
+                <span class="value">{{ reel_info.duration|default('N/A') }}</span>
+            </div>
+            <div class="meta-card">
+                <span class="label">File size</span>
+                <span class="value">{{ reel_info.filesize|default('N/A') }}</span>
+            </div>
+            <div class="meta-card">
+                <span class="label">Likes</span>
+                <span class="value">{{ reel_info.likes|default('N/A') }}</span>
+            </div>
+            <div class="meta-card">
+                <span class="label">Views</span>
+                <span class="value">{{ reel_info.views|default('N/A') }}</span>
+            </div>
+            <div class="meta-card">
+                <span class="label">Published</span>
+                <span class="value">{{ reel_info.published|default('N/A') }}</span>
+            </div>
+        </div>
+
+        <div class="caption-card">
+            <h3>Caption</h3>
+            <p>{{ reel_info.caption|default('No caption provided.') }}</p>
+            <div class="link-row">
+                <a href="https://www.instagram.com/reel/{{ reel_info.shortcode }}" target="_blank" rel="noopener">Open on Instagram</a>
+                <a href="{{ download_url }}" id="directLink" target="_blank" rel="noopener">Direct download URL</a>
+            </div>
+        </div>
+
+        <section class="callout">
+            <span class="callout-icon">&#129529;</span>
+            <div>
+                <strong>Auto-clean enabled:</strong> we periodically purge temporary downloads older than {{ retention_hours }} hours to keep things tidy.
+            </div>
+        </section>
+    </article>
+
+    <aside class="frosted-panel tips-card">
+        <h2>Next steps & best practices</h2>
+        <ul class="tips-list">
+            <li>Share responsibly and always respect the creator's rights when reusing content.</li>
+            <li>Need the raw file later? Bookmark the direct link above or redownload before it expires.</li>
+            <li>Encountered a private reel? Ask the creator to make it public temporarily or use the Instagram app directly.</li>
+        </ul>
+        <div class="divider"></div>
+        <div class="faq">
+            <article class="faq-item">
+                <h3>Having trouble with playback?</h3>
+                <p>Some browsers throttle autoplay on mobile. If the preview looks blank, tap once to load or hit the download button to save the file locally.</p>
+            </article>
+            <article class="faq-item">
+                <h3>Want metadata programmatically?</h3>
+                <p>Inspect the <code>info.json</code> file in the download folder for a quick JSON payload of this reel's metadata.</p>
+            </article>
+        </div>
+    </aside>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const copyButton = document.getElementById('copyLink');
+    const autoToggle = document.getElementById('autoDownloadToggle');
+    const autoStatus = document.getElementById('autoStatus');
+    const downloadUrl = copyButton ? copyButton.dataset.link : null;
+    const downloadTrigger = document.getElementById('downloadNow');
+    const countdownSeconds = 3;
+    let timerId;
+    let remaining = countdownSeconds;
+
+    function startAutoDownload() {
+        if (!autoToggle || !autoToggle.checked || !downloadUrl) return;
+        remaining = countdownSeconds;
+        updateStatus();
+        timerId = setInterval(() => {
+            remaining -= 1;
+            updateStatus();
+            if (remaining <= 0) {
+                clearInterval(timerId);
+                window.location.href = downloadUrl;
+                autoStatus.textContent = 'Download started.';
+            }
+        }, 1000);
+    }
+
+    function updateStatus() {
+        if (!autoStatus) return;
+        if (!autoToggle.checked) {
+            autoStatus.textContent = 'Auto-download paused';
+        } else {
+            autoStatus.textContent = `Starting in ${remaining}s...`;
+        }
+    }
+
+    if (autoToggle) {
+        autoToggle.addEventListener('change', () => {
+            if (!autoToggle.checked) {
+                clearInterval(timerId);
+                updateStatus();
+            } else {
+                startAutoDownload();
+            }
+        });
+        startAutoDownload();
+    }
+
+    if (copyButton && downloadUrl) {
+        copyButton.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(downloadUrl);
+                copyButton.textContent = 'Link copied!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy download link';
+                }, 3000);
+            } catch (error) {
+                copyButton.textContent = 'Copy not supported';
+                copyButton.disabled = true;
+            }
+        });
+    }
+
+    if (downloadTrigger) {
+        downloadTrigger.addEventListener('click', () => {
+            if (autoToggle) {
+                autoToggle.checked = false;
+                clearInterval(timerId);
+                updateStatus();
+            }
+        });
+    }
+</script>
+{% endblock %}

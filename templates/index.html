@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block title %}Instagram Reel Downloader{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .hero-layout {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+        align-items: stretch;
+    }
+
+    .form-card {
+        display: grid;
+        gap: 1.75rem;
+    }
+
+    .form-card header {
+        display: grid;
+        gap: 1rem;
+        position: relative;
+    }
+
+    .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+    }
+
+    .download-form {
+        display: grid;
+        gap: 1.25rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .input-layout {
+        display: flex;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+    }
+
+    .input-wrapper {
+        flex: 1 1 240px;
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-subtle);
+        padding: 0.2rem 0.85rem 0.2rem 1rem;
+        background: color-mix(in srgb, var(--surface-card) 90%, transparent);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+
+    .input-wrapper:focus-within {
+        border-color: rgba(0, 149, 246, 0.35);
+        box-shadow: 0 0 0 3px rgba(0, 149, 246, 0.15);
+    }
+
+    .input-wrapper .input-icon {
+        width: 20px;
+        height: 20px;
+        color: var(--text-muted);
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+    }
+
+    .input-field {
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-weight: 500;
+        padding-block: 0.85rem;
+    }
+
+    .input-field::placeholder {
+        color: var(--text-muted);
+        opacity: 0.85;
+    }
+
+    .input-field:focus {
+        outline: none;
+    }
+
+    #submitBtn {
+        flex: 0 0 auto;
+        padding-inline: 1.5rem;
+        min-width: 180px;
+        position: relative;
+    }
+
+    #submitBtn .btn-spinner {
+        display: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        animation: spin 0.85s linear infinite;
+    }
+
+    #submitBtn.is-loading .btn-spinner {
+        display: inline-flex;
+    }
+
+    #submitBtn.is-loading #submitLabel {
+        opacity: 0.6;
+    }
+
+    .helper-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .helper-row button {
+        padding-inline: 1rem;
+    }
+
+    .helper-row .example-link {
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .loading-state {
+        display: none;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.95rem 1.1rem;
+        border-radius: var(--radius-md);
+        border: 1px dashed rgba(0, 149, 246, 0.35);
+        background: rgba(0, 149, 246, 0.12);
+        color: rgba(15, 23, 42, 0.8);
+        font-weight: 500;
+    }
+
+    .loading-state .pulse {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(0, 149, 246, 0.85);
+        box-shadow: 0 0 0 rgba(0, 149, 246, 0.45);
+        animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .quick-benefits {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .timeline {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .timeline-step {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        padding: 1rem 1.1rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+        background: color-mix(in srgb, var(--surface-glass-alt) 75%, transparent);
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+    }
+
+    .step-index {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        background: var(--gradient-primary);
+        color: #fff;
+        font-weight: 600;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 10px 22px rgba(138, 58, 185, 0.25);
+        flex: 0 0 auto;
+    }
+
+    .step-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .feature-card {
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-subtle);
+        padding: 1.4rem 1.5rem;
+        background: color-mix(in srgb, var(--surface-card) 92%, transparent);
+        display: grid;
+        gap: 0.75rem;
+        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.16);
+    }
+
+    .feature-card header {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+    }
+
+    .feature-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 1.1rem;
+        background: color-mix(in srgb, var(--gradient-primary) 55%, transparent);
+        color: #fff;
+        box-shadow: 0 12px 22px rgba(138, 58, 185, 0.28);
+    }
+
+    .feature-card p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.55;
+    }
+
+    .metrics-note {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .faq-wrapper {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(0, 149, 246, 0.45);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 12px rgba(0, 149, 246, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(0, 149, 246, 0);
+        }
+    }
+
+    @media (max-width: 640px) {
+        #submitBtn {
+            width: 100%;
+        }
+
+        .input-layout {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .input-wrapper {
+            padding-inline: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="grid hero-layout">
+    <article class="frosted-panel form-card">
+        <span class="floating-shape"></span>
+        <span class="floating-shape"></span>
+        <header>
+            <span class="badge">Modern &bull; Secure &bull; Fast</span>
+            <h1 class="hero-title">Save <span class="gradient-text">Instagram Reels</span> in seconds</h1>
+            <p class="lead">Paste any public Instagram Reel link to download a high-quality MP4 with rich metadata. Clean design, dark mode friendly, and zero tracking.</p>
+            <div class="chip-row">
+                <span class="chip"><span class="dot"></span> Lossless MP4 export</span>
+                <span class="chip"><span class="dot"></span> Auto filename sanitizing</span>
+                <span class="chip"><span class="dot"></span> Smart error handling</span>
+            </div>
+        </header>
+
+        <form id="downloadForm" class="download-form" method="post">
+            <div class="input-layout">
+                <label class="sr-only" for="urlInput">Instagram Reel URL</label>
+                <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">&#128279;</span>
+                    <input type="url" class="input-field" id="urlInput" name="url" placeholder="https://www.instagram.com/reel/XXXXXXXXX/" required autocomplete="off" spellcheck="false">
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                    <span id="submitLabel">Download Reel</span>
+                </button>
+            </div>
+
+            <div class="helper-row">
+                <button type="button" class="btn btn-ghost" id="pasteButton">Paste from clipboard</button>
+                <button type="button" class="btn btn-outline" id="fillExample">Use demo URL</button>
+                <span>Need help? <a class="example-link muted-link" href="#faq">Read quick tips</a></span>
+            </div>
+
+            <div class="loading-state" id="loadingState" role="status" aria-live="polite">
+                <span class="pulse" aria-hidden="true"></span>
+                Preparing your download - hold tight while we talk to Instagram.
+            </div>
+
+            {% if error %}
+            <div class="alert" role="alert">{{ error }}</div>
+            {% endif %}
+        </form>
+
+        <section class="quick-benefits">
+            <div class="callout">
+                <span class="callout-icon">&#128161;</span>
+                <div>
+                    <strong>Tip:</strong> Ensure the Reel is public and the URL includes <code>/reel/</code> or <code>/p/</code>. Private content cannot be downloaded.
+                </div>
+            </div>
+            <div class="timeline">
+                <div class="timeline-step">
+                    <span class="step-index">1</span>
+                    <div>
+                        <div class="step-title">Paste the Instagram Reel link</div>
+                        <p class="muted">Use the share button in the Instagram app or copy the URL from your browser.</p>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <span class="step-index">2</span>
+                    <div>
+                        <div class="step-title">We fetch the video securely</div>
+                        <p class="muted">Your download is processed in a temporary sandbox and auto-cleans after a few hours.</p>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <span class="step-index">3</span>
+                    <div>
+                        <div class="step-title">Preview & download instantly</div>
+                        <p class="muted">Preview the reel, inspect metadata, and download the MP4 with one click.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </article>
+
+    <aside class="frosted-panel" aria-label="Feature highlights">
+        <header>
+            <span class="badge">What's new today</span>
+            <h2 class="section-title">A faster way to save the moments you love</h2>
+            <p class="muted">Every part of the experience has been refined for clarity, accessibility, and speed.</p>
+        </header>
+
+        <div class="grid feature-grid">
+            <article class="feature-card">
+                <header>
+                    <span class="feature-icon">&#9889;</span>
+                    <h3>Progressive feedback</h3>
+                </header>
+                <p>Real-time progress cues with graceful fallbacks ensure you always know what's happening during the download.</p>
+            </article>
+            <article class="feature-card">
+                <header>
+                    <span class="feature-icon">&#127912;</span>
+                    <h3>Adaptive theming</h3>
+                </header>
+                <p>System-aware light & dark themes powered by smooth glassmorphism and accessible color contrast.</p>
+            </article>
+            <article class="feature-card">
+                <header>
+                    <span class="feature-icon">&#128272;</span>
+                    <h3>Privacy-first design</h3>
+                </header>
+                <p>Temporary downloads auto-expire. No analytics, no tracking, nothing stored beyond what's needed for delivery.</p>
+            </article>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="metrics-note">Download queue resets after a few hours to keep your storage clean. Need an API? Hook into <code>/download/&lt;id&gt;</code> once generated.</p>
+    </aside>
+</section>
+
+<section id="faq" class="faq-wrapper">
+    <header>
+        <h2 class="section-title">Frequently asked questions</h2>
+        <p class="muted">Common answers to help you troubleshoot faster.</p>
+    </header>
+    <div class="faq">
+        <article class="faq-item">
+            <h3>Can I download private reels?</h3>
+            <p>No - only publicly accessible reels can be fetched. If you own the account, switch it to public or download from within the Instagram app.</p>
+        </article>
+        <article class="faq-item">
+            <h3>The link I pasted says it is invalid. Why?</h3>
+            <p>Double-check the URL starts with <code>https://www.instagram.com/</code> and contains <code>/reel/</code>, <code>/p/</code>, or <code>/tv/</code>. Try tapping <em>Copy Link</em> in the Instagram app and paste again.</p>
+        </article>
+        <article class="faq-item">
+            <h3>Where do my downloads go?</h3>
+            <p>Downloads live in a secure temporary folder on the server. They are auto-deleted after a few hours or as soon as you leave the results page.</p>
+        </article>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('downloadForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingState = document.getElementById('loadingState');
+    const urlInput = document.getElementById('urlInput');
+    const pasteButton = document.getElementById('pasteButton');
+    const fillExample = document.getElementById('fillExample');
+
+    if (form) {
+        form.addEventListener('submit', () => {
+            if (!submitBtn) return;
+            submitBtn.classList.add('is-loading');
+            submitBtn.disabled = true;
+            if (loadingState) {
+                loadingState.style.display = 'flex';
+            }
+        });
+    }
+
+    if (pasteButton) {
+        const clipboardSupported = !!(navigator.clipboard && navigator.clipboard.readText);
+        if (!clipboardSupported) {
+            pasteButton.style.display = 'none';
+        } else {
+            pasteButton.addEventListener('click', async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text && urlInput) {
+                        urlInput.value = text.trim();
+                        urlInput.focus();
+                    }
+                } catch (error) {
+                    pasteButton.textContent = 'Clipboard unavailable';
+                    pasteButton.disabled = true;
+                }
+            });
+        }
+    }
+
+    if (fillExample) {
+        fillExample.addEventListener('click', () => {
+            if (urlInput) {
+                urlInput.value = 'https://www.instagram.com/reel/CqXKsVIu9H_/'
+                urlInput.focus();
+                urlInput.setSelectionRange(urlInput.value.length, urlInput.value.length);
+            }
+        });
+    }
+</script>
+{% endblock %}
