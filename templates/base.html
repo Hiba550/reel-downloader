@@ -32,6 +32,10 @@
             --radius-sm: 12px;
             --backdrop-blur: blur(32px);
             --header-height: 72px;
+            --safe-area-top: env(safe-area-inset-top, 0px);
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-area-left: env(safe-area-inset-left, 0px);
+            --safe-area-right: env(safe-area-inset-right, 0px);
         }
 
         [data-theme="dark"] {
@@ -68,6 +72,8 @@
             position: relative;
             overflow-x: hidden;
             transition: background 0.6s ease, color 0.4s ease;
+            min-height: 100dvh;
+            padding: var(--safe-area-top) var(--safe-area-right) var(--safe-area-bottom) var(--safe-area-left);
         }
 
         [data-theme="dark"] body {
@@ -202,15 +208,16 @@
 
         main.site-main {
             flex: 1;
-            width: min(1200px, calc(100% - clamp(2rem, 6vw, 5.5rem)));
+            width: min(1200px, 100%);
             margin: clamp(1.5rem, 4vw, 4.5rem) auto clamp(1.5rem, 4vw, 4rem);
+            padding-inline: clamp(1rem, 5vw, 2.75rem);
             display: grid;
             gap: clamp(1.5rem, 3vw, 2.75rem);
             position: relative;
         }
 
         footer.site-footer {
-            padding: 2rem clamp(1.5rem, 3vw, 3.75rem) 3rem;
+            padding: 2rem clamp(1.5rem, 3vw, 3.75rem) calc(3rem + var(--safe-area-bottom));
             text-align: center;
             color: var(--text-muted);
             font-size: 0.95rem;
@@ -281,6 +288,7 @@
             font-weight: 700;
             line-height: 1.1;
             margin-bottom: clamp(0.85rem, 3vw, 1.4rem);
+            text-wrap: balance;
         }
 
         .gradient-text {
@@ -595,6 +603,8 @@
 
             .nav-actions {
                 gap: 0.5rem;
+                width: 100%;
+                justify-content: space-between;
             }
 
             .pill {
@@ -602,8 +612,9 @@
             }
 
             main.site-main {
-                width: min(100%, calc(100% - 2.5rem));
+                width: 100%;
                 margin-top: clamp(2rem, 10vw, 3rem);
+                padding-inline: clamp(1rem, 6vw, 2.25rem);
             }
 
             .frosted-panel {
@@ -627,6 +638,11 @@
                 padding-block: 1rem 0;
             }
 
+            .nav-actions {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+
             .brand {
                 font-size: 1.05rem;
             }
@@ -647,6 +663,57 @@
 
             footer.site-footer {
                 font-size: 0.85rem;
+            }
+
+            main.site-main {
+                padding-inline: clamp(1rem, 7vw, 1.6rem);
+                gap: clamp(1.25rem, 6vw, 1.75rem);
+            }
+        }
+
+        @media (max-width: 540px) {
+            body {
+                font-size: 0.96rem;
+            }
+
+            .top-nav {
+                gap: 0.75rem;
+                padding-block: 0.75rem 0;
+            }
+
+            .nav-actions {
+                gap: 0.6rem;
+            }
+
+            .theme-toggle-button {
+                width: 40px;
+                height: 40px;
+            }
+
+            .frosted-panel {
+                padding: clamp(1.4rem, 7vw, 1.9rem);
+            }
+
+            .floating-shape {
+                display: none;
+            }
+
+            .badge {
+                font-size: 0.72rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            h1.hero-title {
+                font-size: clamp(1.9rem, 8vw, 2.2rem);
+            }
+
+            .lead {
+                font-size: 0.98rem;
+            }
+
+            main.site-main {
+                padding-inline: clamp(0.85rem, 7vw, 1.25rem);
             }
         }
 
