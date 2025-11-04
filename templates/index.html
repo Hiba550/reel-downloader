@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block title %}Instagram Reel Downloader{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .hero-layout {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+        align-items: stretch;
+    }
+
+    .form-card {
+        display: grid;
+        gap: clamp(1.5rem, 4vw, 2rem);
+        position: relative;
+    }
+
+    .form-card header {
+        display: grid;
+        gap: 1rem;
+        position: relative;
+    }
+
+    .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+    }
+
+    .download-form {
+        display: grid;
+        gap: 1.25rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .input-layout {
+        display: flex;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+    }
+
+    .input-wrapper {
+        flex: 1 1 240px;
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-subtle);
+        padding: 0.2rem 0.85rem 0.2rem 1rem;
+        background: color-mix(in srgb, var(--surface-card) 90%, transparent);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+
+    .input-wrapper:focus-within {
+        border-color: rgba(0, 149, 246, 0.35);
+        box-shadow: 0 0 0 3px rgba(0, 149, 246, 0.15);
+    }
+
+    .input-wrapper .input-icon {
+        width: 20px;
+        height: 20px;
+        color: var(--text-muted);
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+    }
+
+    .input-field {
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-weight: 500;
+        padding-block: 0.85rem;
+    }
+
+    .input-field::placeholder {
+        color: var(--text-muted);
+        opacity: 0.85;
+    }
+
+    .input-field:focus {
+        outline: none;
+    }
+
+    #submitBtn {
+        flex: 0 0 auto;
+        padding-inline: 1.5rem;
+        min-width: 180px;
+        position: relative;
+    }
+
+    #submitBtn .btn-spinner {
+        display: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        animation: spin 0.85s linear infinite;
+    }
+
+    #submitBtn.is-loading .btn-spinner {
+        display: inline-flex;
+    }
+
+    #submitBtn.is-loading #submitLabel {
+        opacity: 0.6;
+    }
+
+    .helper-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .helper-row button {
+        padding-inline: 1rem;
+    }
+
+    .helper-row .example-link {
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .loading-state {
+        display: none;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.95rem 1.1rem;
+        border-radius: var(--radius-md);
+        border: 1px dashed rgba(0, 149, 246, 0.35);
+        background: rgba(0, 149, 246, 0.12);
+        color: rgba(15, 23, 42, 0.8);
+        font-weight: 500;
+    }
+
+    .loading-state .pulse {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(0, 149, 246, 0.85);
+        box-shadow: 0 0 0 rgba(0, 149, 246, 0.45);
+        animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .quick-benefits {
+        display: grid;
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-card {
+            gap: clamp(1.25rem, 5vw, 1.75rem);
+        }
+
+        .chip-row {
+            gap: 0.55rem;
+        }
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(0, 149, 246, 0.45);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 12px rgba(0, 149, 246, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(0, 149, 246, 0);
+        }
+    }
+
+    @media (max-width: 640px) {
+        #submitBtn {
+            width: 100%;
+            min-width: auto;
+        }
+
+        .input-layout {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .input-wrapper {
+            padding-inline: 1rem;
+            flex: 1 1 auto;
+        }
+
+        .helper-row {
+            flex-direction: row;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: space-between;
+        }
+
+        .helper-row button {
+            flex: 1 1 auto;
+            min-width: 140px;
+            padding-inline: 0.8rem;
+            font-size: 0.88rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .form-card header {
+            gap: 0.8rem;
+        }
+
+        .chip {
+            font-size: 0.78rem;
+            padding: 0.4rem 0.75rem;
+        }
+
+        .callout {
+            padding: 0.85rem 1rem;
+            font-size: 0.88rem;
+        }
+
+        .helper-row {
+            gap: 0.5rem;
+        }
+
+        .helper-row button {
+            font-size: 0.85rem;
+            padding: 0.75rem 0.7rem;
+            min-width: 120px;
+        }
+
+        .input-wrapper {
+            padding: 0.2rem 0.75rem 0.2rem 0.85rem;
+        }
+
+        .input-field {
+            font-size: 0.95rem;
+        }
+
+        #submitBtn {
+            padding: 0.85rem 1.1rem;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .hero-title {
+            font-size: 1.75rem !important;
+        }
+
+        .lead {
+            font-size: 0.92rem;
+        }
+
+        .helper-row {
+            flex-direction: column;
+        }
+
+        .helper-row button {
+            width: 100%;
+            min-width: auto;
+        }
+
+        .chip-row {
+            gap: 0.45rem;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.35rem 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="grid hero-layout">
+    <article class="frosted-panel form-card">
+        <span class="floating-shape"></span>
+        <span class="floating-shape"></span>
+        <header>
+            <span class="badge">Modern &bull; Secure &bull; Fast</span>
+            <h1 class="hero-title">Save <span class="gradient-text">Instagram Reels</span> in seconds</h1>
+            <p class="lead">Paste any public Instagram Reel link to download a high-quality MP4 with rich metadata. Clean design, dark mode friendly, and zero tracking.</p>
+            <div class="chip-row">
+                <span class="chip"><span class="dot"></span> Lossless MP4 export</span>
+                <span class="chip"><span class="dot"></span> Auto filename sanitizing</span>
+                <span class="chip"><span class="dot"></span> Smart error handling</span>
+            </div>
+        </header>
+
+        <form id="downloadForm" class="download-form" method="post">
+            <div class="input-layout">
+                <label class="sr-only" for="urlInput">Instagram Reel URL</label>
+                <div class="input-wrapper">
+                    <span class="input-icon" aria-hidden="true">&#128279;</span>
+                    <input type="url" class="input-field" id="urlInput" name="url" placeholder="https://www.instagram.com/reel/XXXXXXXXX/" required autocomplete="off" spellcheck="false">
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                    <span id="submitLabel">Download Reel</span>
+                </button>
+            </div>
+
+            <div class="helper-row">
+                <button type="button" class="btn btn-ghost" id="pasteButton">Paste from clipboard</button>
+                <button type="button" class="btn btn-outline" id="fillExample">Use demo URL</button>
+            </div>
+
+            <div class="loading-state" id="loadingState" role="status" aria-live="polite">
+                <span class="pulse" aria-hidden="true"></span>
+                Preparing your download - hold tight while we talk to Instagram.
+            </div>
+
+            {% if error %}
+            <div class="alert" role="alert">{{ error }}</div>
+            {% endif %}
+        </form>
+
+        <section class="quick-benefits">
+            <div class="callout">
+                <span class="callout-icon">&#128161;</span>
+                <div>
+                    <strong>Tip:</strong> Ensure the Reel is public and the URL includes <code>/reel/</code> or <code>/p/</code>. Private content cannot be downloaded.
+                </div>
+            </div>
+        </section>
+    </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('downloadForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingState = document.getElementById('loadingState');
+    const urlInput = document.getElementById('urlInput');
+    const pasteButton = document.getElementById('pasteButton');
+    const fillExample = document.getElementById('fillExample');
+
+    if (form) {
+        form.addEventListener('submit', () => {
+            if (!submitBtn) return;
+            submitBtn.classList.add('is-loading');
+            submitBtn.disabled = true;
+            if (loadingState) {
+                loadingState.style.display = 'flex';
+            }
+        });
+    }
+
+    if (pasteButton) {
+        const clipboardSupported = !!(navigator.clipboard && navigator.clipboard.readText);
+        if (!clipboardSupported) {
+            pasteButton.style.display = 'none';
+        } else {
+            pasteButton.addEventListener('click', async () => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text && urlInput) {
+                        urlInput.value = text.trim();
+                        urlInput.focus();
+                    }
+                } catch (error) {
+                    pasteButton.textContent = 'Clipboard unavailable';
+                    pasteButton.disabled = true;
+                }
+            });
+        }
+    }
+
+    if (fillExample) {
+        fillExample.addEventListener('click', () => {
+            if (urlInput) {
+                urlInput.value = 'https://www.instagram.com/reel/CqXKsVIu9H_/'
+                urlInput.focus();
+                urlInput.setSelectionRange(urlInput.value.length, urlInput.value.length);
+            }
+        });
+    }
+
+    // Handle shared URL from PWA Share Target
+    {% if shared_url %}
+    (function() {
+        const sharedUrl = "{{ shared_url }}";
+        const backgroundMode = {{ 'true' if background_mode else 'false' }};
+        const shareOverlay = document.getElementById('shareOverlay');
+        const sharedUrlDisplay = document.getElementById('sharedUrlDisplay');
+        const shareCloseBtn = document.getElementById('shareCloseBtn');
+        const shareProcessBtn = document.getElementById('shareProcessBtn');
+        const shareCopyBtn = document.getElementById('shareCopyBtn');
+        const shareIgnoreBtn = document.getElementById('shareIgnoreBtn');
+
+        // Fill the form immediately with the shared URL
+        if (urlInput) {
+            urlInput.value = sharedUrl;
+        }
+
+        if (backgroundMode) {
+            // Background mode: Minimal notification, instant download
+            if (shareOverlay) {
+                shareOverlay.classList.add('background-mode');
+                
+                // Update text for background mode
+                const messageEl = shareOverlay.querySelector('.overlay-message');
+                const progressText = shareOverlay.querySelector('.progress-text');
+                if (messageEl) messageEl.textContent = '📥 Downloading Instagram Reel...';
+                if (progressText) progressText.textContent = 'Processing in background...';
+            }
+            
+            // Show minimal notification for just 1.2 seconds
+            setTimeout(() => {
+                if (shareOverlay && sharedUrlDisplay) {
+                    sharedUrlDisplay.textContent = sharedUrl;
+                    shareOverlay.classList.add('active');
+                }
+            }, 200);
+
+            // Auto-submit almost immediately (1.2 seconds)
+            setTimeout(() => {
+                if (shareOverlay) {
+                    shareOverlay.classList.remove('active');
+                }
+                if (form && urlInput) {
+                    form.submit();
+                }
+            }, 1400);
+        } else {
+            // Normal mode: Full overlay with controls
+            setTimeout(() => {
+                if (shareOverlay && sharedUrlDisplay) {
+                    sharedUrlDisplay.textContent = sharedUrl;
+                    shareOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            }, 300);
+
+            // Auto-submit after showing overlay for 2.5 seconds
+            setTimeout(() => {
+                if (shareOverlay) {
+                    shareOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                if (form && urlInput) {
+                    form.submit();
+                }
+            }, 2800);
+        }
+
+        // Close overlay
+        if (shareCloseBtn) {
+            shareCloseBtn.addEventListener('click', () => {
+                shareOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+
+        // Process the shared URL immediately - manual trigger
+        if (shareProcessBtn) {
+            shareProcessBtn.addEventListener('click', () => {
+                if (shareOverlay) {
+                    shareOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                if (form) {
+                    // Submit the form immediately
+                    form.submit();
+                }
+            });
+        }
+
+        // Copy the shared URL
+        if (shareCopyBtn) {
+            shareCopyBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(sharedUrl);
+                    shareCopyBtn.innerHTML = '<span>✓</span> Copied!';
+                    setTimeout(() => {
+                        shareCopyBtn.innerHTML = '<span>📋</span> Copy Link';
+                    }, 2000);
+                } catch (error) {
+                    console.error('Failed to copy:', error);
+                }
+            });
+        }
+
+        // Ignore the shared URL
+        if (shareIgnoreBtn) {
+            shareIgnoreBtn.addEventListener('click', () => {
+                if (shareOverlay) {
+                    shareOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                // Clear the URL from the form
+                if (urlInput) {
+                    urlInput.value = '';
+                }
+            });
+        }
+
+        // Close overlay when clicking outside the modal
+        if (shareOverlay) {
+            shareOverlay.addEventListener('click', (e) => {
+                if (e.target === shareOverlay) {
+                    shareOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+    })();
+    {% endif %}
+</script>
+{% endblock %}

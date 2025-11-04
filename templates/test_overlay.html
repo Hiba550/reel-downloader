@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Share Feature</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #8A3AB9;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #BC2A8D;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 20px;
+            width: 100%;
+            max-height: 50vh;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .handle {
+            width: 40px;
+            height: 4px;
+            background: #ccc;
+            border-radius: 999px;
+            margin: 0 auto 20px;
+        }
+        .url-display {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            word-break: break-all;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        .status {
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Share Feature Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Simulate Share</h2>
+        <p>Click this button to simulate what happens when you share from Instagram:</p>
+        <button onclick="testShare()">Simulate Instagram Share</button>
+        <button onclick="clearTest()">Reset</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Status:</h2>
+        <div class="status" id="status">Ready to test...</div>
+    </div>
+
+    <!-- Share Overlay -->
+    <div class="overlay" id="shareOverlay">
+        <div class="modal">
+            <div class="handle"></div>
+            <h2>📥 Shared Link Received</h2>
+            <p>Instagram Reel link ready to download!</p>
+            <div class="url-display" id="urlDisplay"></div>
+            <div style="display: flex; gap: 10px; align-items: center; margin: 15px 0;">
+                <div style="width: 20px; height: 20px; border: 2px solid #8A3AB9; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                <span>Starting download in <span id="countdown">3</span> seconds...</span>
+            </div>
+            <button onclick="downloadNow()">⚡ Download Now</button>
+            <button onclick="closeOverlay()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let countdownTimer;
+        let autoSubmitTimer;
+
+        function testShare() {
+            const testUrl = "https://www.instagram.com/reel/CqXKsVIu9H_/";
+            updateStatus("Simulating share from Instagram...");
+            
+            // Simulate the share action
+            setTimeout(() => {
+                showShareOverlay(testUrl);
+            }, 500);
+        }
+
+        function showShareOverlay(url) {
+            const overlay = document.getElementById('shareOverlay');
+            const urlDisplay = document.getElementById('urlDisplay');
+            const countdownEl = document.getElementById('countdown');
+            
+            urlDisplay.textContent = url;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            updateStatus("Overlay shown! Countdown started...");
+            
+            // Countdown
+            let seconds = 3;
+            countdownEl.textContent = seconds;
+            
+            countdownTimer = setInterval(() => {
+                seconds--;
+                countdownEl.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(countdownTimer);
+                }
+            }, 1000);
+            
+            // Auto-submit after 3 seconds
+            autoSubmitTimer = setTimeout(() => {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+                updateStatus("✅ Success! Would now submit form and download. NO LOOP!");
+                clearInterval(countdownTimer);
+            }, 3000);
+        }
+
+        function downloadNow() {
+            clearInterval(countdownTimer);
+            clearTimeout(autoSubmitTimer);
+            const overlay = document.getElementById('shareOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            updateStatus("✅ Manual download triggered! Would now submit form.");
+        }
+
+        function closeOverlay() {
+            clearInterval(countdownTimer);
+            clearTimeout(autoSubmitTimer);
+            const overlay = document.getElementById('shareOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            updateStatus("Cancelled. Ready for next test.");
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+        }
+
+        function clearTest() {
+            closeOverlay();
+            updateStatus("Reset complete. Ready to test...");
+        }
+    </script>
+
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>
