@@ -370,14 +370,12 @@
         <header class="success-header">
             <span class="success-icon">&#10003;</span>
             <div class="success-copy">
-                <span class="status-chip">Download ready</span>
-                <h1>All set! Your reel is prepared.</h1>
-                <p>Preview, inspect metadata, and grab the MP4 file. We'll keep the download link alive for a few hours.</p>
+                <span class="status-chip">Ready</span>
+                <h1>Download Complete</h1>
             </div>
         </header>
 
         <section class="video-preview">
-            <span class="badge">Live preview</span>
             <video src="{{ preview_url }}" controls playsinline preload="metadata"></video>
         </section>
 
@@ -394,77 +392,45 @@
                 <span class="icon" aria-hidden="true">&#11015;</span>
                 Download MP4
             </a>
-            <button class="btn btn-secondary" id="copyLink" data-link="{{ download_url }}">Copy download link</button>
-            <a href="/" class="btn btn-outline">Fetch another reel</a>
+            <button class="btn btn-secondary" id="copyLink" data-link="{{ download_url }}">Copy Link</button>
+            <a href="/" class="btn btn-outline">New Download</a>
         </div>
 
         <div class="auto-download">
             <label class="toggle" for="autoDownloadToggle">
                 <input type="checkbox" id="autoDownloadToggle" checked>
-                <span>Auto-download in background</span>
+                <span>Auto-download</span>
             </label>
-            <span class="auto-status" id="autoStatus">Starting download...</span>
+            <span class="auto-status" id="autoStatus">Starting...</span>
         </div>
 
         <div class="meta-grid">
+            {% if reel_info.duration %}
             <div class="meta-card">
                 <span class="label">Duration</span>
-                <span class="value">{{ reel_info.duration|default('N/A') }}</span>
+                <span class="value">{{ reel_info.duration }}</span>
             </div>
+            {% endif %}
+            {% if reel_info.filesize %}
             <div class="meta-card">
-                <span class="label">File size</span>
-                <span class="value">{{ reel_info.filesize|default('N/A') }}</span>
+                <span class="label">Size</span>
+                <span class="value">{{ reel_info.filesize }}</span>
             </div>
+            {% endif %}
+            {% if reel_info.likes %}
             <div class="meta-card">
                 <span class="label">Likes</span>
-                <span class="value">{{ reel_info.likes|default('N/A') }}</span>
+                <span class="value">{{ reel_info.likes }}</span>
             </div>
+            {% endif %}
+            {% if reel_info.views %}
             <div class="meta-card">
                 <span class="label">Views</span>
-                <span class="value">{{ reel_info.views|default('N/A') }}</span>
+                <span class="value">{{ reel_info.views }}</span>
             </div>
-            <div class="meta-card">
-                <span class="label">Published</span>
-                <span class="value">{{ reel_info.published|default('N/A') }}</span>
-            </div>
+            {% endif %}
         </div>
-
-        <div class="caption-card">
-            <h3>Caption</h3>
-            <p>{{ reel_info.caption|default('No caption provided.') }}</p>
-            <div class="link-row">
-                <a href="https://www.instagram.com/reel/{{ reel_info.shortcode }}" target="_blank" rel="noopener">Open on Instagram</a>
-                <a href="{{ download_url }}" id="directLink" target="_blank" rel="noopener">Direct download URL</a>
-            </div>
-        </div>
-
-        <section class="callout">
-            <span class="callout-icon">&#129529;</span>
-            <div>
-                <strong>Auto-clean enabled:</strong> we periodically purge temporary downloads older than {{ retention_hours }} hours to keep things tidy.
-            </div>
-        </section>
     </article>
-
-    <aside class="frosted-panel tips-card">
-        <h2>Next steps & best practices</h2>
-        <ul class="tips-list">
-            <li>Share responsibly and always respect the creator's rights when reusing content.</li>
-            <li>Need the raw file later? Bookmark the direct link above or redownload before it expires.</li>
-            <li>Encountered a private reel? Ask the creator to make it public temporarily or use the Instagram app directly.</li>
-        </ul>
-        <div class="divider"></div>
-        <div class="faq">
-            <article class="faq-item">
-                <h3>Having trouble with playback?</h3>
-                <p>Some browsers throttle autoplay on mobile. If the preview looks blank, tap once to load or hit the download button to save the file locally.</p>
-            </article>
-            <article class="faq-item">
-                <h3>Want metadata programmatically?</h3>
-                <p>Inspect the <code>info.json</code> file in the download folder for a quick JSON payload of this reel's metadata.</p>
-            </article>
-        </div>
-    </aside>
 </section>
 {% endblock %}
 

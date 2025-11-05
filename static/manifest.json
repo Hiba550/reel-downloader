@@ -1,7 +1,7 @@
 {
-  "name": "Instagram Reel Downloader",
-  "short_name": "Reel Downloader",
-  "description": "Download Instagram Reels quickly and easily",
+  "name": "Reel Downloader",
+  "short_name": "Reel DL",
+  "description": "Download Instagram Reels instantly",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -41,9 +41,9 @@
   },
   "shortcuts": [
     {
-      "name": "Download Reel",
+      "name": "Download",
       "short_name": "Download",
-      "description": "Quickly download an Instagram Reel",
+      "description": "Download a Reel",
       "url": "/",
       "icons": [
         {

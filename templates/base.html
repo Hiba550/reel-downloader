@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#8A3AB9">
-    <meta name="description" content="Download Instagram Reels quickly and easily">
+    <meta name="description" content="Download Instagram Reels instantly">
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
@@ -12,14 +12,14 @@
     <!-- iOS Specific Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Reel Downloader">
+    <meta name="apple-mobile-web-app-title" content="Reel DL">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo/Instagram_Glyph_White.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='logo/Instagram_Glyph_White.png') }}">
     
     <!-- Favicon -->
     <link data-default-icon="https://static.cdninstagram.com/rsrc.php/v4/yI/r/VsNE-OHk_8a.png" rel="icon" sizes="192x192" href="https://static.cdninstagram.com/rsrc.php/v4/yI/r/VsNE-OHk_8a.png" />
     
-    <title>{% block title %}Instagram Reel Downloader{% endblock %}</title>
+    <title>{% block title %}Reel Downloader{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -803,112 +803,70 @@
             }
         }
 
-        /* Share Overlay Styles - Bottom Sheet */
-        .share-overlay {
+        /* PWA Share Badge - Background Mode */
+        .pwa-share-badge {
+            position: fixed;
+            top: calc(var(--safe-area-top) + 1rem);
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            max-width: 520px;
+            width: calc(100% - 2rem);
+            height: 48px;
+            padding: 0 1rem;
+            background: linear-gradient(135deg, #8A3AB9, #BC2A8D);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.2;
+            z-index: 10000;
+            transition: transform 200ms ease-out, opacity 150ms ease-out;
+            opacity: 0;
+        }
+
+        .pwa-share-badge.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* PWA Bottom Sheet - Normal Mode */
+        .pwa-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: none;
-            align-items: flex-end;
-            justify-content: center;
-            padding: 0;
-            animation: fadeIn 0.25s ease;
-            touch-action: none;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+            opacity: 0;
+            transition: opacity 280ms ease;
         }
 
-        .share-overlay.active {
-            display: flex;
+        .pwa-backdrop.show {
+            opacity: 1;
         }
 
-        .share-modal {
+        .pwa-bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: var(--surface-card);
             border-radius: 24px 24px 0 0;
             padding: 1.5rem;
-            max-width: 100%;
-            width: 100%;
-            max-height: 50vh;
+            max-height: 65vh;
             box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
-            animation: slideUpFromBottom 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-            position: relative;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            z-index: 9999;
+            transform: translateY(100%);
+            transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
         }
 
-        /* Background Mode - Minimal Notification */
-        .share-overlay.background-mode {
-            background: transparent;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-            align-items: flex-start;
-            padding: 1rem;
-            pointer-events: none;
+        .pwa-bottom-sheet.show {
+            transform: translateY(0);
         }
 
-        .share-overlay.background-mode .share-modal {
-            max-width: 400px;
-            max-height: auto;
-            border-radius: 16px;
-            padding: 1rem 1.25rem;
-            background: linear-gradient(135deg, #8A3AB9, #BC2A8D);
-            color: white;
-            box-shadow: 0 10px 30px rgba(138, 58, 185, 0.4);
-            margin-top: calc(var(--safe-area-top) + 1rem);
-            animation: slideDownNotification 0.3s ease;
-        }
-
-        .share-overlay.background-mode .share-modal::before {
-            display: none;
-        }
-
-        .share-overlay.background-mode .share-modal-header,
-        .share-overlay.background-mode .share-actions {
-            display: none;
-        }
-
-        .share-overlay.background-mode .share-modal-body {
-            gap: 0.75rem;
-        }
-
-        .share-overlay.background-mode .share-url-display {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            font-size: 0.85rem;
-            padding: 0.75rem;
-            max-height: 3em;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .share-overlay.background-mode .share-progress {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: white;
-            padding: 0.65rem 0.85rem;
-            font-size: 0.88rem;
-        }
-
-        .share-overlay.background-mode .share-progress-spinner {
-            border-color: rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-        }
-
-        @keyframes slideDownNotification {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .share-modal::before {
+        .pwa-bottom-sheet::before {
             content: '';
             position: absolute;
             top: 0.75rem;
@@ -920,147 +878,24 @@
             border-radius: 999px;
         }
 
-        .share-modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.25rem;
-            padding-top: 1rem;
-        }
-
-        .share-modal-title {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-        }
-
-        .share-modal-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 12px;
-            background: var(--gradient-primary);
-            display: grid;
-            place-items: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-
-        .share-close-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: none;
-            background: color-mix(in srgb, var(--surface-glass) 60%, transparent);
-            color: var(--text-muted);
-            cursor: pointer;
-            display: grid;
-            place-items: center;
-            font-size: 1.25rem;
-            transition: all 0.2s ease;
-        }
-
-        .share-close-btn:hover {
-            background: var(--border-subtle);
-            color: var(--text-primary);
-            transform: scale(1.05);
-        }
-
-        .share-modal-body {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .share-url-display {
-            padding: 1rem;
-            background: color-mix(in srgb, var(--surface-glass-alt) 70%, transparent);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            word-break: break-all;
-            font-family: 'Courier New', monospace;
-        }
-
-        .share-progress {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.85rem 1rem;
-            background: rgba(0, 191, 137, 0.12);
-            border: 1px solid rgba(0, 191, 137, 0.25);
-            border-radius: var(--radius-md);
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .share-progress-spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(0, 191, 137, 0.3);
-            border-top-color: var(--accent-success);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .share-actions {
-            display: grid;
-            gap: 0.75rem;
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .share-btn-process {
-            grid-column: 1 / -1;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUpFromBottom {
-            from {
-                transform: translateY(100%);
-            }
-            to {
-                transform: translateY(0);
-            }
-        }
-
         @media (max-width: 640px) {
-            .share-modal {
+            .pwa-share-badge {
+                font-size: 14px;
+                height: 44px;
+                padding: 0 0.85rem;
+            }
+
+            .pwa-bottom-sheet {
                 padding: 1.25rem;
-                max-height: 55vh;
-            }
-
-            .share-actions {
-                grid-template-columns: 1fr;
-            }
-
-            .share-modal-title {
-                font-size: 1.05rem;
+                max-height: 70vh;
             }
         }
 
-        @media (max-width: 400px) {
-            .share-modal {
-                padding: 1rem;
-                border-radius: 20px 20px 0 0;
-            }
-
-            .share-url-display {
-                font-size: 0.82rem;
-                padding: 0.85rem;
+        @media (prefers-reduced-motion: reduce) {
+            .pwa-share-badge,
+            .pwa-backdrop,
+            .pwa-bottom-sheet {
+                transition: none !important;
             }
         }
     </style>
@@ -1074,10 +909,9 @@
                     <img src="{{ url_for('static', filename='logo/Instagram_Glyph_White.png') }}" alt="Instagram" class="brand-logo light-logo">
                     <img src="{{ url_for('static', filename='logo/Instagram_Glyph_White.png') }}" alt="Instagram" class="brand-logo dark-logo">
                 </div>
-                <span>Reel Downloader</span>
+                <span>Reel DL</span>
             </div>
             <div class="nav-actions">
-                <a class="pill pill-link" href="https://instaloader.github.io" target="_blank" rel="noopener">Powered by Instaloader</a>
                 <button class="theme-toggle-button" id="themeToggle" aria-label="Toggle theme">
                     <svg class="theme-icon" id="lightIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="5" />
@@ -1097,36 +931,6 @@
         <footer class="site-footer">
             <p><span class="heart">&#10084;</span> by Hiba</p>
         </footer>
-    </div>
-
-    <!-- Share Overlay -->
-    <div class="share-overlay" id="shareOverlay">
-        <div class="share-modal">
-            <div class="share-modal-header">
-                <div class="share-modal-title">
-                    <span class="share-modal-icon">📥</span>
-                    Shared Link Received
-                </div>
-                <button class="share-close-btn" id="shareCloseBtn" aria-label="Close">&times;</button>
-            </div>
-            <div class="share-modal-body">
-                <p style="color: var(--text-secondary); margin: 0 0 1rem;" class="overlay-message">Instagram Reel link received and ready!</p>
-                <div class="share-url-display" id="sharedUrlDisplay"></div>
-                <div class="share-progress">
-                    <div class="share-progress-spinner"></div>
-                    <span class="progress-text">Starting download automatically...</span>
-                </div>
-                <div class="share-actions">
-                    <button class="btn btn-primary share-btn-process" id="shareProcessBtn">
-                        <span>⚡</span> Download Now (Don't Wait)
-                    </button>
-                    <button class="btn btn-ghost" id="shareCopyBtn">
-                        <span>📋</span> Copy Link
-                    </button>
-                    <button class="btn btn-outline" id="shareIgnoreBtn">Cancel</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
